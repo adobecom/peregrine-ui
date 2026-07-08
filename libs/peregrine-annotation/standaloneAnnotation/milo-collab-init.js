@@ -29,7 +29,7 @@ function loadCssFiles(filePath) {
   const link = document.createElement('link');
   link.rel = 'stylesheet';
   link.href = filePath;
-  link.dataset.streamMapperStyles = '';
+  link.dataset.peregrineMapperStyles = '';
   document.head.appendChild(link);
 }
 
@@ -63,7 +63,7 @@ async function createCollab(collabData) {
   const res = await fetch(`${API_ENDPOINT}/collabs`, {
     method: 'POST',
     // eslint-disable-next-line object-curly-newline
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`, 'X-User-Email': resolvedEmail, 'X-User-Name': resolvedName },
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
     body: JSON.stringify(collabData),
   });
   const result = await res.json().catch(() => ({}));
@@ -77,7 +77,7 @@ async function assignCollabRoles(collabId, assignments) {
   const res = await fetch(`${API_ENDPOINT}/collabs/${encodeURIComponent(collabId)}/roles/assign`, {
     method: 'POST',
     // eslint-disable-next-line object-curly-newline
-    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}`, 'X-User-Email': resolvedEmail, 'X-User-Name': resolvedName },
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
     body: JSON.stringify({ assignments }),
   });
   if (!res.ok) {
@@ -89,9 +89,9 @@ async function assignCollabRoles(collabId, assignments) {
 async function fetchAndApplyCollabSnapshot(collabId) {
   const token = getToken();
   if (!collabId || !token) return;
-  const serviceEP = window.streamConfig?.streamMapper?.serviceEP || '';
+  const serviceEP = window.peregrineConfig?.peregrineMapper?.serviceEP || '';
   if (!serviceEP) return;
-  const headers = { Authorization: `Bearer ${token}`, 'X-User-Email': resolvedEmail, 'X-User-Name': resolvedName };
+  const headers = { Authorization: `Bearer ${token}` };
   try {
     const r = await fetch(`${serviceEP}/api/collabs/${encodeURIComponent(collabId)}`, { headers });
     const collab = await r.json();
@@ -116,8 +116,8 @@ async function startAnnotation(createdCollabId = null) {
   const draftLocation = `adobecom/${repo}/drafts/collab/${collabId}/${filename}`;
   */
   const username = resolvedName || resolvedEmail.split('@')[0] || 'Unknown';
-  window.streamConfig = {
-    streamMapper: { ...CONFIG[env].streamMapper },
+  window.peregrineConfig = {
+    peregrineMapper: { ...CONFIG[env].peregrineMapper },
     source: 'da',
     pageUrl: window.location.href,
     token: getToken(),
@@ -605,7 +605,7 @@ function showCollabModal() {
         const repo = host.split('--')[1] || '';
         const daPageUrl = `adobecom/${repo}${pathname}`;
         const previewBase = `${window.location.origin}${pathname}`;
-        const previewUrl = `${previewBase}?martech=off&mepButton=off&georouting=off&daRenderingApp=stream`;
+        const previewUrl = `${previewBase}?martech=off&mepButton=off&georouting=off&daRenderingApp=peregrine`;
 
         const collabData = {
           title,
@@ -689,7 +689,7 @@ function showCollabModal() {
 
 let initInProgress = false;
 // eslint-disable-next-line import/prefer-default-export
-export async function initializeStreamAnnotation(sidekickDetail = null) {
+export async function initializePeregrineAnnotation(sidekickDetail = null) {
   if (initInProgress) return;
   initInProgress = true;
 
